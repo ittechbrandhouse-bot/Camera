@@ -1,0 +1,1471 @@
+<title>غرفة تحكم الفروع</title>
+<style>
+  :root{
+    --bg:#F6F3EC;
+    --surface:#FFFFFF;
+    --surface-2:#EFEAE0;
+    --border:#E1DACB;
+    --text:#242220;
+    --text-dim:#6B6558;
+    --navy:#1F3864;
+    --navy-ink:#16294C;
+    --brand-fill:#1F3864;
+    --gold:#B8860B;
+    --good:#1E7A46;
+    --good-bg:#E4F3E9;
+    --warn:#B8790C;
+    --warn-bg:#FBF0DC;
+    --bad:#B3261E;
+    --bad-bg:#FBE6E4;
+    --shadow: 0 1px 2px rgba(30,25,15,.06), 0 8px 24px -12px rgba(30,25,15,.18);
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#14181D;
+      --surface:#1C2229;
+      --surface-2:#232A32;
+      --border:#323A44;
+      --text:#EDEBE6;
+      --text-dim:#9CA3AC;
+      --navy:#9DB6E8;
+      --navy-ink:#C7D6F2;
+      --brand-fill:#2E4A78;
+      --gold:#E0B45A;
+      --good:#49C285;
+      --good-bg:#173226;
+      --warn:#E0A93F;
+      --warn-bg:#3A2E14;
+      --bad:#F0776E;
+      --bad-bg:#3B1E1C;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#14181D;
+    --surface:#1C2229;
+    --surface-2:#232A32;
+    --border:#323A44;
+    --text:#EDEBE6;
+    --text-dim:#9CA3AC;
+    --navy:#9DB6E8;
+    --navy-ink:#C7D6F2;
+    --brand-fill:#2E4A78;
+    --gold:#E0B45A;
+    --good:#49C285;
+    --good-bg:#173226;
+    --warn:#E0A93F;
+    --warn-bg:#3A2E14;
+    --bad:#F0776E;
+    --bad-bg:#3B1E1C;
+    color-scheme: dark;
+  }
+
+  *{ box-sizing:border-box; }
+  html{ direction:rtl; }
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:"Tajawal","IBM Plex Sans Arabic",Tahoma,Arial,sans-serif;
+    direction:rtl; text-align:right;
+    padding-inline:20px; padding-block:22px 60px;
+  }
+  h1,h2,h3, .display{ font-family:"Cairo","Tajawal",Tahoma,Arial,sans-serif; text-wrap:balance; }
+  .num{ font-variant-numeric:tabular-nums; }
+  a{ color:inherit; }
+
+  .wrap{ max-width:1180px; margin:0 auto; display:flex; flex-direction:column; gap:22px; }
+
+  /* ---------- header ---------- */
+  .topbar{
+    display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:14px;
+    background:var(--brand-fill); color:#fff; border-radius:16px; padding:18px 22px; box-shadow:var(--shadow);
+  }
+  .topbar .brand{ display:flex; align-items:center; gap:12px; }
+  .topbar .brand .mark{
+    width:42px; height:42px; border-radius:11px; background:rgba(255,255,255,.14);
+    display:flex; align-items:center; justify-content:center; font-size:22px;
+  }
+  .topbar h1{ margin:0; font-size:1.28rem; letter-spacing:.2px; }
+  .topbar .sub{ margin:2px 0 0; font-size:.82rem; color:rgba(255,255,255,.72); }
+  .shift-pill{
+    display:flex; align-items:center; gap:10px; background:rgba(255,255,255,.1);
+    border:1px solid rgba(255,255,255,.18); border-radius:999px; padding:8px 16px; font-size:.86rem;
+  }
+  .shift-pill b{ color:#F4D793; }
+  .icon-btn{
+    border:1px solid rgba(255,255,255,.25); background:rgba(255,255,255,.08); color:#fff;
+    border-radius:10px; width:38px; height:38px; display:flex; align-items:center; justify-content:center;
+    cursor:pointer; font-size:16px;
+  }
+  .icon-btn:hover{ background:rgba(255,255,255,.18); }
+  .icon-btn:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-visible{
+    outline:2px solid var(--gold); outline-offset:2px;
+  }
+
+  #db-banner{
+    display:none; background:var(--warn-bg); color:var(--warn); border:1px solid var(--warn);
+    border-radius:12px; padding:10px 16px; font-size:.86rem;
+  }
+  #local-mode-banner{
+    background:var(--surface-2); color:var(--text-dim); border:1px solid var(--border);
+    border-radius:12px; padding:10px 16px; font-size:.82rem; line-height:1.6; margin-bottom:14px;
+  }
+  #local-mode-banner b{ color:var(--navy); }
+  #local-mode-banner .sync-row{ display:flex; gap:8px; margin-top:8px; flex-wrap:wrap; }
+  #local-mode-banner .sync-row button{
+    border:1px solid var(--navy); background:var(--surface); color:var(--navy); font-weight:700;
+    border-radius:9px; padding:6px 14px; font-size:.8rem; cursor:pointer; font-family:inherit;
+  }
+  #local-mode-banner .sync-row button:hover{ background:var(--good-bg); }
+
+  /* ---------- kpi row ---------- */
+  .kpis{ display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
+  .kpi{
+    background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:16px 18px;
+    box-shadow:var(--shadow); display:flex; flex-direction:column; gap:6px; min-width:0;
+  }
+  .kpi .label{ font-size:.78rem; color:var(--text-dim); }
+  .kpi .value{ font-size:1.7rem; font-weight:700; font-family:"Cairo","Tajawal",sans-serif; }
+  .kpi .value small{ font-size:.95rem; font-weight:600; color:var(--text-dim); }
+  .kpi.good .value{ color:var(--good); }
+  .kpi.bad .value{ color:var(--bad); }
+  .kpi .hint{ font-size:.74rem; color:var(--text-dim); }
+
+  /* ---------- generic panel ---------- */
+  .panel{
+    background:var(--surface); border:1px solid var(--border); border-radius:16px;
+    box-shadow:var(--shadow); padding:18px 20px;
+  }
+  .panel > h2{ margin:0 0 4px; font-size:1.05rem; }
+  .panel > .desc{ margin:0 0 14px; font-size:.82rem; color:var(--text-dim); }
+
+  .cols{ display:grid; grid-template-columns:1.4fr 1fr; gap:18px; align-items:start; }
+
+  /* ---------- branch grid ---------- */
+  .branch-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(210px,1fr)); gap:12px; }
+  .branch-card{
+    border:1px solid var(--border); border-radius:12px; padding:12px 14px; position:relative;
+    background:var(--surface-2); display:flex; flex-direction:column; gap:6px;
+  }
+  .branch-card .stripe{ position:absolute; inset-inline-start:0; top:10px; bottom:10px; width:4px; border-radius:3px; background:var(--good); }
+  .branch-card.has-crit .stripe{ background:var(--bad); }
+  .branch-card.has-high .stripe{ background:var(--warn); }
+  .branch-card .name{ font-weight:700; font-size:.94rem; padding-inline-start:8px; }
+  .branch-card .row{ display:flex; justify-content:space-between; align-items:baseline; font-size:.78rem; color:var(--text-dim); padding-inline-start:8px; }
+  .branch-card .open-count{ font-size:1.3rem; font-weight:700; font-family:"Cairo",sans-serif; color:var(--text); }
+  .branch-card .updated{ font-size:.72rem; color:var(--text-dim); padding-inline-start:8px; }
+
+  /* ---------- form ---------- */
+  .field{ display:flex; flex-direction:column; gap:5px; margin-bottom:12px; }
+  .field label{ font-size:.78rem; color:var(--text-dim); }
+  .field select, .field input, .field textarea{
+    font:inherit; font-size:.9rem; padding:9px 11px; border-radius:9px; border:1px solid var(--border);
+    background:var(--bg); color:var(--text); width:100%;
+  }
+  .field textarea{ min-height:64px; resize:vertical; }
+  .row2{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .submit-btn{
+    width:100%; padding:11px; border:none; border-radius:10px; background:var(--brand-fill); color:#fff;
+    font:inherit; font-weight:700; cursor:pointer; font-size:.92rem;
+  }
+  .submit-btn:hover{ filter:brightness(1.08); }
+  .submit-btn:disabled{ opacity:.55; cursor:not-allowed; }
+  .whoami{ display:flex; gap:8px; margin-bottom:14px; }
+  .whoami button{
+    flex:1; padding:8px; border-radius:9px; border:1px solid var(--border); background:var(--surface-2);
+    color:var(--text); font:inherit; font-size:.84rem; cursor:pointer;
+  }
+  .whoami button.active{ background:var(--brand-fill); border-color:var(--brand-fill); color:#fff; }
+
+  /* ---------- compliance checklist ---------- */
+  .check-item{ margin-bottom:14px; padding-bottom:12px; border-bottom:1px solid var(--border); }
+  .check-item:last-child{ border-bottom:none; margin-bottom:12px; }
+  .check-item .clabel{ font-size:.83rem; margin-bottom:7px; display:block; line-height:1.4; }
+  .tri-toggle{ display:flex; gap:6px; }
+  .tri-toggle button{
+    flex:1; padding:7px 4px; border-radius:8px; border:1px solid var(--border); background:var(--surface-2);
+    color:var(--text-dim); font:inherit; font-size:.76rem; cursor:pointer;
+  }
+  .tri-toggle button.sel-good{ background:var(--good-bg); border-color:var(--good); color:var(--good); font-weight:700; }
+  .tri-toggle button.sel-bad{ background:var(--bad-bg); border-color:var(--bad); color:var(--bad); font-weight:700; }
+  .tri-toggle button.sel-na{ background:var(--surface-2); border-color:var(--text-dim); color:var(--text-dim); font-weight:700; }
+  .crit-details{ margin:2px 0 9px; }
+  .crit-details summary{ cursor:pointer; color:var(--navy); font-weight:600; font-size:.76rem; list-style:none; display:inline-flex; align-items:center; gap:4px; user-select:none; }
+  .crit-details summary::-webkit-details-marker{ display:none; }
+  .crit-details summary::before{ content:"◂"; font-size:.65rem; transition:transform .15s; display:inline-block; }
+  .crit-details[open] summary::before{ transform:rotate(-90deg); }
+  .crit-details .crit-row{ margin-top:6px; padding:7px 10px; border-radius:8px; background:var(--surface-2); line-height:1.55; font-size:.78rem; color:var(--text-dim); }
+  .crit-details .crit-row b{ color:var(--text); font-weight:700; }
+  .crit-details .crit-row.ok{ border-inline-start:3px solid var(--good); }
+  .crit-details .crit-row.bad{ border-inline-start:3px solid var(--bad); }
+  .item-badges{ display:flex; flex-wrap:wrap; gap:5px; margin-top:6px; }
+
+  /* ---------- badges ---------- */
+  .badge{ display:inline-flex; align-items:center; gap:5px; padding:3px 9px; border-radius:999px; font-size:.72rem; font-weight:700; white-space:nowrap; }
+  .badge.crit{ background:var(--bad-bg); color:var(--bad); }
+  .badge.high{ background:var(--warn-bg); color:var(--warn); }
+  .badge.mid{ background:var(--surface-2); color:var(--text-dim); }
+  .badge.low{ background:var(--good-bg); color:var(--good); }
+  .status-chip{
+    border:1px solid var(--border); background:var(--surface-2); border-radius:999px; padding:4px 12px;
+    font-size:.74rem; cursor:pointer; font-family:inherit; color:var(--text);
+  }
+  .status-chip.open{ background:var(--bad-bg); color:var(--bad); border-color:transparent; }
+  .status-chip.progress{ background:var(--warn-bg); color:var(--warn); border-color:transparent; }
+  .status-chip.closed{ background:var(--good-bg); color:var(--good); border-color:transparent; }
+
+  /* ---------- log table ---------- */
+  .filters{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
+  .filters select{
+    font:inherit; font-size:.8rem; padding:7px 10px; border-radius:8px; border:1px solid var(--border);
+    background:var(--surface-2); color:var(--text);
+  }
+  .log-list{ display:flex; flex-direction:column; gap:8px; max-height:520px; overflow-y:auto; padding-inline-end:4px; }
+  .log-row{
+    border:1px solid var(--border); border-radius:11px; padding:10px 12px; display:grid;
+    grid-template-columns:auto 1fr auto; gap:10px; align-items:start; background:var(--surface-2);
+  }
+  .log-row .stripe2{ width:4px; align-self:stretch; border-radius:3px; background:var(--good); }
+  .log-row.crit .stripe2{ background:var(--bad); }
+  .log-row.high .stripe2{ background:var(--warn); }
+  .log-row .meta{ display:flex; flex-wrap:wrap; gap:6px; align-items:center; font-size:.74rem; color:var(--text-dim); margin-bottom:4px; }
+  .log-row .note{ font-size:.87rem; line-height:1.5; }
+  .log-row .action-note{ font-size:.78rem; color:var(--text-dim); margin-top:4px; }
+  .empty{ text-align:center; padding:34px 10px; color:var(--text-dim); font-size:.88rem; }
+
+  /* ---------- bars ---------- */
+  .barlist{ display:flex; flex-direction:column; gap:10px; }
+  .bar-row{ display:grid; grid-template-columns:132px 1fr 34px; align-items:center; gap:10px; font-size:.8rem; }
+  .bar-row .track{ background:var(--surface-2); border-radius:6px; height:10px; overflow:hidden; }
+  .bar-row .fill{ height:100%; border-radius:6px; background:var(--brand-fill); }
+  .bar-row .count{ text-align:start; color:var(--text-dim); font-size:.78rem; }
+
+  .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+
+  footer{ text-align:center; font-size:.74rem; color:var(--text-dim); padding-top:6px; }
+
+  @media (max-width: 860px){
+    .kpis{ grid-template-columns:1fr 1fr; }
+    .cols{ grid-template-columns:1fr; }
+    .grid2{ grid-template-columns:1fr; }
+    .row2{ grid-template-columns:1fr; }
+  }
+  @media (max-width:480px){
+    .kpis{ grid-template-columns:1fr 1fr; }
+    body{ padding-inline:14px; }
+  }
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800&family=Tajawal:wght@400;500;700&display=swap">
+
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="brand">
+      <div class="mark">🎥</div>
+      <div>
+        <h1 class="display">غرفة تحكم الفروع</h1>
+        <p class="sub" id="today-line">—</p>
+      </div>
+    </div>
+    <div style="display:flex; align-items:center; gap:10px;">
+      <div class="shift-pill" id="shift-pill">جارِ تحديد الوردية…</div>
+      <button class="icon-btn" id="settings-btn" title="الإعدادات" aria-label="الإعدادات">⚙️</button>
+    </div>
+  </div>
+
+  <div id="local-mode-banner">
+    <b>نسخة عامة بدون تسجيل دخول:</b> هذا الرابط يعمل لأي شخص بدون حساب Claude، لكن البيانات هنا تُحفظ محليًا داخل متصفح هذا الجهاز فقط ولا تتم مزامنتها تلقائيًا مع جهاز المراقب الآخر.
+    لمشاركة آخر تحديث بين الجهازين: صدِّر نسخة من هذا الجهاز، ثم أرسلها (واتساب/إيميل) واستوردها في الجهاز الآخر.
+    <div class="sync-row">
+      <button type="button" id="export-btn">⬇️ تصدير نسخة البيانات</button>
+      <button type="button" id="import-btn">⬆️ استيراد نسخة بيانات</button>
+      <input type="file" id="import-file" accept="application/json" style="display:none;">
+    </div>
+  </div>
+
+  <div id="db-banner"></div>
+
+  <div class="kpis">
+    <div class="kpi">
+      <div class="label">إجمالي الملاحظات هذا الشهر</div>
+      <div class="value num" id="kpi-total">0</div>
+      <div class="hint">عبر الفروع العشرة</div>
+    </div>
+    <div class="kpi bad">
+      <div class="label">حالات حرجة مفتوحة الآن</div>
+      <div class="value num" id="kpi-crit">0</div>
+      <div class="hint">تحتاج تصعيدًا فوريًا</div>
+    </div>
+    <div class="kpi good">
+      <div class="label">نسبة إغلاق الملاحظات (الشهر)</div>
+      <div class="value num" id="kpi-closure">—</div>
+      <div class="hint" id="kpi-closure-hint">لا توجد بيانات بعد</div>
+    </div>
+    <div class="kpi">
+      <div class="label">فرع يحتاج انتباه</div>
+      <div class="value" id="kpi-spotlight" style="font-size:1.1rem;">—</div>
+      <div class="hint" id="kpi-spotlight-hint">لا توجد ملاحظات مفتوحة</div>
+    </div>
+    <div class="kpi">
+      <div class="label">إجمالي الزائرين هذا الشهر</div>
+      <div class="value num" id="kpi-visitors">0</div>
+      <div class="hint" id="kpi-visitors-hint">عبر الفروع العشرة</div>
+    </div>
+    <div class="kpi good">
+      <div class="label">معدل التحويل (زائر → مشترٍ)</div>
+      <div class="value num" id="kpi-conversion">—</div>
+      <div class="hint" id="kpi-conversion-hint">لا توجد بيانات بعد</div>
+    </div>
+    <div class="kpi">
+      <div class="label">متوسط وقت بقاء العميل</div>
+      <div class="value num" id="kpi-dwell">—</div>
+      <div class="hint" id="kpi-dwell-hint">لا توجد بيانات بعد</div>
+    </div>
+    <div class="kpi">
+      <div class="label">تقييم الاستقبال الأكثر تكرارًا</div>
+      <div class="value" id="kpi-reception" style="font-size:1.1rem;">—</div>
+      <div class="hint" id="kpi-reception-hint">لا توجد بيانات بعد</div>
+    </div>
+  </div>
+
+  <div class="cols">
+    <div class="panel">
+      <h2>حالة الفروع العشرة</h2>
+      <p class="desc">مرتّبة حسب الأولوية — الفروع ذات الملاحظات المفتوحة الحرجة أو العالية أولًا</p>
+      <div class="branch-grid" id="branch-grid"></div>
+    </div>
+
+    <div class="panel">
+      <h2>تسجيل ملاحظة جديدة</h2>
+      <p class="desc">تُسجَّل فور رصدها أثناء الوردية وتظهر فورًا للطرف الآخر وللمشرف</p>
+      <div class="whoami" id="whoami">
+        <button type="button" data-who="مراقب 1">أنا مراقب 1</button>
+        <button type="button" data-who="مراقب 2">أنا مراقب 2</button>
+      </div>
+      <form id="log-form">
+        <div class="row2">
+          <div class="field">
+            <label for="f-branch">الفرع</label>
+            <select id="f-branch" required></select>
+          </div>
+          <div class="field">
+            <label for="f-shift">الوردية</label>
+            <select id="f-shift" required>
+              <option>صباحية</option>
+              <option>مسائية</option>
+            </select>
+          </div>
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label for="f-category">التصنيف</label>
+            <select id="f-category" required></select>
+          </div>
+          <div class="field">
+            <label for="f-severity">درجة الأهمية</label>
+            <select id="f-severity" required></select>
+          </div>
+        </div>
+        <div class="field">
+          <label for="f-note">الوصف / الملاحظة</label>
+          <textarea id="f-note" required placeholder="مثال: تأخر استقبال العملاء عند الذروة بسبب نقص الكاشيرات المفتوحة"></textarea>
+        </div>
+        <div class="field">
+          <label for="f-action">الإجراء المتخذ (اختياري)</label>
+          <input id="f-action" type="text" placeholder="مثال: تم إبلاغ مدير الفرع فورًا">
+        </div>
+        <button class="submit-btn" type="submit" id="submit-btn">إضافة الملاحظة</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="cols">
+    <div class="panel">
+      <h2>حركة العملاء لكل فرع (هذا الشهر)</h2>
+      <p class="desc">إجمالي الزائرين، معدل التحويل، ومتوسط وقت البقاء — مرتّبة بالأقل تحويلًا أولًا</p>
+      <div class="branch-grid" id="traffic-grid"></div>
+    </div>
+
+    <div class="panel">
+      <h2>تسجيل حركة العملاء</h2>
+      <p class="desc">مرة واحدة لكل فرع/وردية/يوم — إعادة التسجيل لنفس اليوم والوردية تُحدّث القيم بدل تكرارها</p>
+      <form id="traffic-form">
+        <div class="row2">
+          <div class="field">
+            <label for="t-branch">الفرع</label>
+            <select id="t-branch" required></select>
+          </div>
+          <div class="field">
+            <label for="t-date">التاريخ</label>
+            <input type="date" id="t-date" required>
+          </div>
+        </div>
+        <div class="field">
+          <label for="t-shift">الوردية</label>
+          <select id="t-shift" required>
+            <option>صباحية</option>
+            <option>مسائية</option>
+          </select>
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label for="t-visitors">إجمالي عدد العملاء الزائرين</label>
+            <input type="number" id="t-visitors" min="0" step="1" required>
+          </div>
+          <div class="field">
+            <label for="t-buyers">عدد العملاء المشترين</label>
+            <input type="number" id="t-buyers" min="0" step="1" required>
+          </div>
+        </div>
+        <div class="field">
+          <label for="t-dwell">متوسط وقت بقاء العميل في الفرع (بالدقائق)</label>
+          <input type="number" id="t-dwell" min="0" step="1" required>
+        </div>
+        <div class="field">
+          <label for="t-rating">تقييم منطقة استقبال العميل</label>
+          <select id="t-rating" required></select>
+        </div>
+        <div class="field">
+          <label for="t-note">ملاحظة عن الاستقبال (اختياري)</label>
+          <input type="text" id="t-note" placeholder="مثال: تأخر الترحيب بالعميل عند الذروة">
+        </div>
+        <div class="hint" id="traffic-warn" style="color:var(--bad); display:none; margin-bottom:8px;">عدد المشترين لا يمكن أن يتجاوز عدد الزائرين</div>
+        <button class="submit-btn" type="submit" id="traffic-submit-btn">حفظ بيانات الحركة</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>سجل حركة العملاء</h2>
+    <p class="desc">أحدث القياسات المسجَّلة لكل فرع ووردية</p>
+    <div class="filters">
+      <select id="filter-t-branch"><option value="">كل الفروع</option></select>
+      <select id="filter-t-shift"><option value="">كل الورديات</option></select>
+    </div>
+    <div class="log-list" id="traffic-list"></div>
+  </div>
+
+  <div class="grid2">
+    <div class="panel">
+      <h2>معدل التحويل حسب الفرع % (هذا الشهر)</h2>
+      <div class="barlist" id="bar-conversion"></div>
+    </div>
+    <div class="panel">
+      <h2>متوسط وقت بقاء العميل حسب الفرع، بالدقائق (هذا الشهر)</h2>
+      <div class="barlist" id="bar-dwell"></div>
+    </div>
+  </div>
+
+  <div class="cols">
+    <div class="panel">
+      <h2>التزام الفروع بمعايير الموظفين (هذا الشهر)</h2>
+      <p class="desc">متوسط نسبة الالتزام بقائمة التحقق اليومية — الأقل التزامًا أولًا</p>
+      <div class="branch-grid" id="compliance-grid"></div>
+    </div>
+
+    <div class="panel">
+      <h2>قائمة التحقق اليومية لالتزام الموظفين</h2>
+      <p class="desc">مرة واحدة لكل فرع/وردية/يوم — إعادة التسجيل لنفس اليوم والوردية تُحدّث القائمة بدل تكرارها</p>
+      <form id="compliance-form">
+        <div class="row2">
+          <div class="field">
+            <label for="c-branch">الفرع</label>
+            <select id="c-branch" required></select>
+          </div>
+          <div class="field">
+            <label for="c-date">التاريخ</label>
+            <input type="date" id="c-date" required>
+          </div>
+        </div>
+        <div class="field">
+          <label for="c-shift">الوردية</label>
+          <select id="c-shift" required>
+            <option>صباحية</option>
+            <option>مسائية</option>
+          </select>
+        </div>
+        <div id="compliance-items"></div>
+        <div class="field">
+          <label for="c-note">ملاحظة عامة (اختياري)</label>
+          <input type="text" id="c-note" placeholder="مثال: تم تنبيه الموظف المسؤول عن المخزن">
+        </div>
+        <button class="submit-btn" type="submit" id="compliance-submit-btn">حفظ قائمة التحقق</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>سجل قوائم التحقق</h2>
+    <p class="desc">أحدث قوائم التحقق المسجَّلة — البنود المخالفة تظهر باللون الأحمر</p>
+    <div class="filters">
+      <select id="filter-c-branch"><option value="">كل الفروع</option></select>
+      <select id="filter-c-shift"><option value="">كل الورديات</option></select>
+    </div>
+    <div class="log-list" id="compliance-list"></div>
+  </div>
+
+  <div class="panel">
+    <h2>نسبة الالتزام حسب الفرع % (هذا الشهر)</h2>
+    <div class="barlist" id="bar-compliance"></div>
+  </div>
+
+  <div class="panel">
+    <h2>سجل المتابعة</h2>
+    <p class="desc">أحدث الملاحظات المسجَّلة — اضغط الحالة لتقديمها للمرحلة التالية</p>
+    <div class="filters">
+      <select id="filter-branch"><option value="">كل الفروع</option></select>
+      <select id="filter-category"><option value="">كل التصنيفات</option></select>
+      <select id="filter-severity"><option value="">كل درجات الأهمية</option></select>
+      <select id="filter-status"><option value="">كل الحالات</option></select>
+    </div>
+    <div class="log-list" id="log-list"></div>
+  </div>
+
+  <div class="grid2">
+    <div class="panel">
+      <h2>الملاحظات حسب الفرع (هذا الشهر)</h2>
+      <div class="barlist" id="bar-branch"></div>
+    </div>
+    <div class="panel">
+      <h2>التوزيع حسب التصنيف (هذا الشهر)</h2>
+      <div class="barlist" id="bar-category"></div>
+    </div>
+  </div>
+
+  <footer>Brandhouse — نظام إدارة فريق مراقبة الكاميرات · أداة لتطوير الخدمة، وليست أداة رقابة تأديبية</footer>
+</div>
+
+<!-- settings modal -->
+<div id="settings-overlay" style="display:none; position:fixed; inset:0; background:rgba(10,12,15,.5); align-items:center; justify-content:center; padding:20px; z-index:50;">
+  <div class="panel" style="max-width:420px; width:100%;">
+    <h2>إعدادات الجدول</h2>
+    <p class="desc">تُستخدم لحساب المسؤول عن الوردية تلقائيًا (نفس منطق ملف Excel المرفق)</p>
+    <div class="field">
+      <label for="cfg-start">تاريخ بداية الجدول</label>
+      <input type="date" id="cfg-start">
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label for="cfg-m1">اسم المراقب 1 (إجازته: الجمعة)</label>
+        <input type="text" id="cfg-m1">
+      </div>
+      <div class="field">
+        <label for="cfg-m2">اسم المراقب 2 (إجازته: السبت)</label>
+        <input type="text" id="cfg-m2">
+      </div>
+    </div>
+    <div style="display:flex; gap:10px; margin-top:6px;">
+      <button class="submit-btn" id="cfg-save">حفظ</button>
+      <button class="submit-btn" id="cfg-cancel" style="background:var(--surface-2); color:var(--text);">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  document.documentElement.setAttribute("dir","rtl");
+  document.documentElement.setAttribute("lang","ar");
+
+  var BRANCHES = ["الماظا","المهندسين","مول مصر","مول العرب","مول طنطا","مول الزقازيق","الزقازيق ستريت","أسيوط","دمنهور","عمارات العبور"];
+  var CATEGORIES = ["جودة خدمة العملاء","الأمن والسلامة","الكفاءة التشغيلية","منع الفاقد وضبط المخزون"];
+  var SEVERITIES = ["حرجة","عالية","متوسطة","منخفضة"];
+  var STATUSES = ["مفتوحة","تحت المتابعة","مغلقة"];
+  var STATUS_CLASS = {"مفتوحة":"open","تحت المتابعة":"progress","مغلقة":"closed"};
+  var SEV_BADGE = {"حرجة":"crit","عالية":"high","متوسطة":"mid","منخفضة":"low"};
+  var SHIFTS = ["صباحية","مسائية"];
+  var BRANCH_SLUGS = ["maza","mohandessin","mall-of-egypt","mall-of-arabia","tanta-mall","zagazig-mall","zagazig-street","assiut","damanhour","obour-buildings"];
+  var RATINGS = ["ممتاز","جيد","متوسط","ضعيف"];
+  var RATING_BADGE = {"ممتاز":"low","جيد":"mid","متوسط":"high","ضعيف":"crit"};
+  var COMPLIANCE_ITEMS = [
+    { key:"uniform_attendance", label:"الالتزام بالزي الرسمي (اليونيفورم) عند تسجيل البصمة وقت الحضور والانصراف",
+      detail:{ std:"يسجّل الموظف حضوره وانصرافه (البصمة) وهو مرتدٍ الزي الرسمي الكامل والمعتمد (القميص/التيشيرت الرسمي، البادج، والبنطلون المحدد إن وُجد).",
+        ok:"تسجيل البصمة والزي الرسمي كامل ومطابق للمواصفات، في الحضور والانصراف على حدٍّ سواء.",
+        bad:"تسجيل البصمة بالملابس الشخصية قبل الارتداء، أو خلع جزء من الزي عند الانصراف قبل تسجيل البصمة، أو ارتداء زي غير مطابق." } },
+    { key:"exit_pattern", label:"عدم تكرار خروج نفس الموظف، وعدم خروج أكثر من موظف في نفس التوقيت",
+      detail:{ std:"عدد مرات خروج كل موظف من الفرع خلال الوردية لغير سبب رسمي معلن، ومدى تزامن خروج أكثر من موظف واحد في نفس التوقيت.",
+        ok:"خروج نادر ولسبب واضح (استراحة مجدولة أو مأمورية معلنة)، ولا يتزامن خروج أكثر من موظف إلا بترتيب مسبق مع المسؤول المناوب.",
+        bad:"خروج متكرر لنفس الموظف أكثر من مرتين في الوردية دون سبب معلن، أو خروج جماعي غير مبرر يترك صالة العرض دون تغطية كافية." } },
+    { key:"daily_tasks", label:"التزام الموظفين بتنفيذ مهامهم اليومية (التاسكات)",
+      detail:{ std:"أداء كل موظف للمهام الموزَّعة عليه ضمن جدول المهام اليومي الصادر من إدارة الفرع (تعبئة الرفوف، الفرزنة، الجرد الجزئي، تغطية منطقة محددة، إلخ).",
+        ok:"تنفيذ المهام المخصصة في التوقيت والمكان المحددين لها ضمن الوردية.",
+        bad:"تجمهر الموظفين دون عمل محدد، ترك المهمة المخصصة دون إنجاز، أو الانشغال بالهاتف الشخصي بدلًا من التاسك المكلَّف به." } },
+    { key:"daily_brief", label:"تنفيذ البريف اليومي الصادر من إدارة الفرع",
+      detail:{ std:"انعقاد اجتماع تنبيه/توجيه قصير (بريف) قبل فتح الفرع أو في بداية كل وردية، وحضور جميع الموظفين المناوبين له.",
+        ok:"انعقاد البريف في التوقيت المعتاد (عادة قبل الفتح بـ10–15 دقيقة) وحضور كامل فريق الوردية.",
+        bad:"عدم انعقاد البريف إطلاقًا، أو حضور جزئي من الفريق، أو تأخر كبير عن الموعد المعتاد دون مبرر." } },
+    { key:"stockroom", label:"نظافة وترتيب المخزن",
+      detail:{ std:"تنظيم البضاعة داخل المخزن حسب الفئات، وخلوّ الممرات من العوائق، وعدم تراكم الصناديق الفارغة أو المخلفات.",
+        ok:"مخزن مرتب حسب دليل التشغيل الداخلي، بممرات خالية وإضاءة وتهوية غير معاقة.",
+        bad:"تكدّس عشوائي للبضاعة، ممرات مسدودة (خطر سلامة أيضًا)، أو بضاعة مبعثرة على الأرض." } },
+    { key:"uniform_shirt", label:"عدم خلع القميص الرسمي أو استبداله بقميص العرض (التِست)",
+      detail:{ std:"ارتداء الموظف لقميص اليونيفورم الرسمي المعتمد طوال فترة تواجده في صالة العرض، دون استخدام قطع «تِست» (عيّنات العرض) كملابس شخصية.",
+        ok:"ارتداء القميص الرسمي المعتمد فقط طوال وقت التواجد في صالة العرض أو أمام العملاء.",
+        bad:"خلع القميص الرسمي داخل الفرع، أو ارتداء قطعة من مجموعة العرض (تِست) بدلًا من الزي الرسمي." } },
+    { key:"shoe_fitting", label:"التزام العملاء بالواقي عند قياس الأحذية، وفي الأماكن المخصصة لذلك فقط",
+      detail:{ std:"تأكّد الموظف من إعطاء العميل واقي القياس (جورب/كيس واقٍ) قبل تجربة أي حذاء، وأن تتم التجربة في منطقة القياس المخصصة فقط.",
+        ok:"كل عملية قياس يسبقها استخدام الواقي، وتتم داخل منطقة القياس المخصصة لذلك.",
+        bad:"قياس الحذاء مباشرة دون واقٍ، أو إجراء القياس في ممرات أو أماكن غير مخصصة لذلك." } }
+  ];
+
+  var state = {
+    db: null,
+    logs: [],
+    traffic: [],
+    compliance: [],
+    checkValues: {},
+    config: { startDate:"2026-09-01", monitor1:"مراقب 1", monitor2:"مراقب 2" },
+    who: null
+  };
+
+  try { state.who = localStorage.getItem("branchwatch_who") || null; } catch(e){}
+
+  function $(sel){ return document.querySelector(sel); }
+  function esc(s){
+    return String(s==null?"":s).replace(/[&<>"']/g, function(c){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];
+    });
+  }
+  function fillSelect(sel, items, placeholder){
+    var html = placeholder!=null ? ("<option value=\"\">"+esc(placeholder)+"</option>") : "";
+    items.forEach(function(it){ html += "<option value=\""+esc(it)+"\">"+esc(it)+"</option>"; });
+    sel.innerHTML = html;
+  }
+
+  // ---------- date helpers ----------
+  function toDateOnly(d){ return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+  function daysBetween(a,b){ return Math.floor((toDateOnly(a) - toDateOnly(b)) / 86400000); }
+
+  function computeShift(now, cfg){
+    var start = new Date(cfg.startDate + "T00:00:00");
+    var dayIdx = daysBetween(now, start);
+    var weekIdx = Math.floor(dayIdx / 7);
+    var primaryMorning = (((weekIdx % 2) + 2) % 2 === 0) ? "monitor1" : "monitor2";
+    var primaryEvening = primaryMorning === "monitor1" ? "monitor2" : "monitor1";
+    var dow = now.getDay(); // 0 Sun ... 5 Fri, 6 Sat
+    var offMonitor = dow === 5 ? "monitor1" : (dow === 6 ? "monitor2" : null);
+    var name = { monitor1: cfg.monitor1, monitor2: cfg.monitor2 };
+    var hour = now.getHours();
+    var currentShiftKey = (hour >= 9 && hour < 17) ? "morning" : "evening";
+
+    var morningWho, eveningWho, fullCoverage = null;
+    if(!offMonitor){
+      morningWho = name[primaryMorning];
+      eveningWho = name[primaryEvening];
+    } else {
+      var working = (primaryMorning === offMonitor) ? primaryEvening : primaryMorning;
+      morningWho = name[working] + " (تغطية كاملة)";
+      eveningWho = name[working] + " (تغطية كاملة)";
+      fullCoverage = name[working];
+    }
+    return {
+      onDutyNow: currentShiftKey === "morning" ? morningWho : eveningWho,
+      currentShiftLabel: currentShiftKey === "morning" ? "صباحية" : "مسائية",
+      morningWho: morningWho, eveningWho: eveningWho,
+      offMonitorName: offMonitor ? name[offMonitor] : null
+    };
+  }
+
+  function renderShiftBar(){
+    var now = new Date();
+    var days = ["الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"];
+    var months = ["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
+    $("#today-line").textContent = days[now.getDay()] + "، " + now.getDate() + " " + months[now.getMonth()] + " " + now.getFullYear();
+    var info = computeShift(now, state.config);
+    $("#shift-pill").innerHTML = "الوردية الحالية: <b>"+esc(info.currentShiftLabel)+"</b> — على رأس العمل: <b>"+esc(info.onDutyNow)+"</b>";
+  }
+
+  // ---------- derived stats ----------
+  function monthKey(d){ return d.toISOString().slice(0,7); }
+  function thisMonthLogs(){
+    var mk = monthKey(new Date());
+    return state.logs.filter(function(l){ return (l.createdAt||"").slice(0,7) === mk; });
+  }
+  function thisMonthTraffic(){
+    var mk = monthKey(new Date());
+    return state.traffic.filter(function(t){ return (t.date||"").slice(0,7) === mk; });
+  }
+  function thisMonthCompliance(){
+    var mk = monthKey(new Date());
+    return state.compliance.filter(function(c){ return (c.date||"").slice(0,7) === mk; });
+  }
+  function complianceScore(items){
+    var good = 0, applicable = 0;
+    COMPLIANCE_ITEMS.forEach(function(it){
+      var v = items && items[it.key];
+      if(v === "لا ينطبق" || !v) return;
+      applicable++;
+      if(v === "ملتزم") good++;
+    });
+    return applicable > 0 ? Math.round(good/applicable*100) : null;
+  }
+  function slugFor(branch){
+    var idx = BRANCHES.indexOf(branch);
+    return idx >= 0 ? BRANCH_SLUGS[idx] : "branch";
+  }
+  function shiftSlug(s){ return s === "صباحية" ? "morning" : "evening"; }
+  function todayISODate(){
+    var d = new Date();
+    var m = String(d.getMonth()+1).padStart(2,"0"), day = String(d.getDate()).padStart(2,"0");
+    return d.getFullYear() + "-" + m + "-" + day;
+  }
+  function relTime(iso){
+    if(!iso) return "";
+    var diff = (Date.now() - new Date(iso).getTime())/1000;
+    if(diff < 60) return "الآن";
+    if(diff < 3600) return "منذ " + Math.floor(diff/60) + " د";
+    if(diff < 86400) return "منذ " + Math.floor(diff/3600) + " س";
+    return "منذ " + Math.floor(diff/86400) + " يوم";
+  }
+
+  function renderKPIs(){
+    var ml = thisMonthLogs();
+    $("#kpi-total").textContent = ml.length;
+    var critOpen = state.logs.filter(function(l){ return l.severity==="حرجة" && l.status!=="مغلقة"; }).length;
+    $("#kpi-crit").textContent = critOpen;
+    if(ml.length){
+      var closed = ml.filter(function(l){ return l.status==="مغلقة"; }).length;
+      $("#kpi-closure").textContent = Math.round(closed/ml.length*100) + "%";
+      $("#kpi-closure-hint").textContent = closed + " من " + ml.length + " مُغلقة";
+    } else {
+      $("#kpi-closure").textContent = "—";
+      $("#kpi-closure-hint").textContent = "لا توجد ملاحظات هذا الشهر بعد";
+    }
+    // spotlight: branch with most weighted-open issues
+    var weight = {"حرجة":4,"عالية":2,"متوسطة":1,"منخفضة":.5};
+    var scores = {};
+    state.logs.forEach(function(l){
+      if(l.status==="مغلقة") return;
+      scores[l.branch] = (scores[l.branch]||0) + (weight[l.severity]||1);
+    });
+    var top = null;
+    Object.keys(scores).forEach(function(b){ if(!top || scores[b] > scores[top]) top = b; });
+    if(top){
+      $("#kpi-spotlight").textContent = top;
+      $("#kpi-spotlight-hint").textContent = "أعلى عدد ملاحظات مفتوحة مرجّحة بالأهمية";
+    } else {
+      $("#kpi-spotlight").textContent = "لا يوجد";
+      $("#kpi-spotlight-hint").textContent = "كل الفروع بلا ملاحظات مفتوحة";
+    }
+  }
+
+  function renderBranchGrid(){
+    var weight = {"حرجة":4,"عالية":2,"متوسطة":1,"منخفضة":.5};
+    var rows = BRANCHES.map(function(b){
+      var branchLogs = state.logs.filter(function(l){ return l.branch === b; });
+      var open = branchLogs.filter(function(l){ return l.status !== "مغلقة"; });
+      var hasCrit = open.some(function(l){ return l.severity==="حرجة"; });
+      var hasHigh = open.some(function(l){ return l.severity==="عالية"; });
+      var score = open.reduce(function(s,l){ return s + (weight[l.severity]||1); }, 0);
+      var last = branchLogs.reduce(function(acc,l){ return (!acc || l.createdAt > acc.createdAt) ? l : acc; }, null);
+      return { branch:b, open:open.length, hasCrit:hasCrit, hasHigh:hasHigh, score:score, last:last };
+    });
+    rows.sort(function(a,b){ return b.score - a.score; });
+    $("#branch-grid").innerHTML = rows.map(function(r){
+      var cls = r.hasCrit ? "has-crit" : (r.hasHigh ? "has-high" : "");
+      var updated = r.last ? ("آخر تحديث: " + relTime(r.last.createdAt)) : "لا توجد ملاحظات مسجَّلة";
+      return "<div class=\"branch-card "+cls+"\"><div class=\"stripe\"></div>"
+        + "<div class=\"name\">"+esc(r.branch)+"</div>"
+        + "<div class=\"row\"><span>ملاحظات مفتوحة</span><span class=\"open-count num\">"+r.open+"</span></div>"
+        + "<div class=\"updated\">"+esc(updated)+"</div></div>";
+    }).join("");
+  }
+
+  function renderBars(){
+    var ml = thisMonthLogs();
+    function bars(map, order){
+      var max = 0; order.forEach(function(k){ max = Math.max(max, map[k]||0); });
+      max = max || 1;
+      return order.map(function(k){
+        var v = map[k]||0;
+        var pct = Math.round((v/max)*100);
+        return "<div class=\"bar-row\"><span>"+esc(k)+"</span><div class=\"track\"><div class=\"fill\" style=\"width:"+pct+"%\"></div></div><span class=\"count num\">"+v+"</span></div>";
+      }).join("");
+    }
+    var byBranch = {}; ml.forEach(function(l){ byBranch[l.branch] = (byBranch[l.branch]||0)+1; });
+    var byCat = {}; ml.forEach(function(l){ byCat[l.category] = (byCat[l.category]||0)+1; });
+    $("#bar-branch").innerHTML = bars(byBranch, BRANCHES);
+    $("#bar-category").innerHTML = bars(byCat, CATEGORIES);
+  }
+
+  function renderTrafficKPIs(){
+    var mt = thisMonthTraffic();
+    var totalVisitors = mt.reduce(function(s,t){ return s + (Number(t.visitors)||0); }, 0);
+    var totalBuyers = mt.reduce(function(s,t){ return s + (Number(t.buyers)||0); }, 0);
+    $("#kpi-visitors").textContent = totalVisitors;
+    if(totalVisitors > 0){
+      $("#kpi-conversion").textContent = Math.round(totalBuyers/totalVisitors*100) + "%";
+      $("#kpi-conversion-hint").textContent = totalBuyers + " مشترٍ من " + totalVisitors + " زائر";
+    } else {
+      $("#kpi-conversion").textContent = "—";
+      $("#kpi-conversion-hint").textContent = "لا توجد بيانات بعد";
+    }
+    if(mt.length){
+      var avgDwell = mt.reduce(function(s,t){ return s + (Number(t.dwellMinutes)||0); }, 0) / mt.length;
+      $("#kpi-dwell").textContent = Math.round(avgDwell) + " د";
+      $("#kpi-dwell-hint").textContent = "متوسط عبر " + mt.length + " قياس";
+      var counts = {};
+      mt.forEach(function(t){ counts[t.receptionRating] = (counts[t.receptionRating]||0)+1; });
+      var topRating = null;
+      Object.keys(counts).forEach(function(r){ if(!topRating || counts[r] > counts[topRating]) topRating = r; });
+      $("#kpi-reception").textContent = topRating || "—";
+      $("#kpi-reception-hint").textContent = topRating ? (counts[topRating] + " من " + mt.length + " قياس") : "لا توجد بيانات بعد";
+    } else {
+      $("#kpi-dwell").textContent = "—";
+      $("#kpi-dwell-hint").textContent = "لا توجد بيانات بعد";
+      $("#kpi-reception").textContent = "—";
+      $("#kpi-reception-hint").textContent = "لا توجد بيانات بعد";
+    }
+  }
+
+  function renderTrafficGrid(){
+    var mt = thisMonthTraffic();
+    var rows = BRANCHES.map(function(b){
+      var bt = mt.filter(function(t){ return t.branch === b; });
+      var visitors = bt.reduce(function(s,t){ return s + (Number(t.visitors)||0); }, 0);
+      var buyers = bt.reduce(function(s,t){ return s + (Number(t.buyers)||0); }, 0);
+      var conv = visitors > 0 ? Math.round(buyers/visitors*100) : null;
+      var avgDwell = bt.length ? Math.round(bt.reduce(function(s,t){ return s + (Number(t.dwellMinutes)||0); },0)/bt.length) : null;
+      var last = bt.reduce(function(acc,t){ return (!acc || t.createdAt > acc.createdAt) ? t : acc; }, null);
+      return { branch:b, visitors:visitors, conv:conv, avgDwell:avgDwell, last:last };
+    });
+    rows.sort(function(a,b){
+      if(a.conv===null && b.conv===null) return 0;
+      if(a.conv===null) return 1;
+      if(b.conv===null) return -1;
+      return a.conv - b.conv;
+    });
+    $("#traffic-grid").innerHTML = rows.map(function(r){
+      var cls = r.conv===null ? "" : (r.conv < 30 ? "has-crit" : (r.conv < 50 ? "has-high" : ""));
+      var convText = r.conv===null ? "لا بيانات" : (r.conv + "%");
+      var dwellText = r.avgDwell===null ? "—" : (r.avgDwell + " د");
+      var updated = r.last ? ("آخر قياس: " + relTime(r.last.createdAt)) : "لا توجد قياسات هذا الشهر";
+      return "<div class=\"branch-card "+cls+"\"><div class=\"stripe\"></div>"
+        + "<div class=\"name\">"+esc(r.branch)+"</div>"
+        + "<div class=\"row\"><span>زوّار الشهر</span><span class=\"open-count num\">"+r.visitors+"</span></div>"
+        + "<div class=\"row\"><span>معدل التحويل</span><span class=\"num\">"+convText+"</span></div>"
+        + "<div class=\"row\"><span>متوسط وقت البقاء</span><span class=\"num\">"+dwellText+"</span></div>"
+        + "<div class=\"updated\">"+esc(updated)+"</div></div>";
+    }).join("");
+  }
+
+  function renderTrafficBars(){
+    var mt = thisMonthTraffic();
+    var convMap = {}, dwellMap = {};
+    BRANCHES.forEach(function(b){
+      var bt = mt.filter(function(t){ return t.branch === b; });
+      var visitors = bt.reduce(function(s,t){ return s + (Number(t.visitors)||0); }, 0);
+      var buyers = bt.reduce(function(s,t){ return s + (Number(t.buyers)||0); }, 0);
+      convMap[b] = visitors > 0 ? Math.round(buyers/visitors*100) : 0;
+      dwellMap[b] = bt.length ? Math.round(bt.reduce(function(s,t){ return s + (Number(t.dwellMinutes)||0); },0)/bt.length) : 0;
+    });
+    function bars(map, order, maxOverride){
+      var max = maxOverride || 0;
+      if(!maxOverride){ order.forEach(function(k){ max = Math.max(max, map[k]||0); }); }
+      max = max || 1;
+      return order.map(function(k){
+        var v = map[k]||0;
+        var pct = Math.round((v/max)*100);
+        return "<div class=\"bar-row\"><span>"+esc(k)+"</span><div class=\"track\"><div class=\"fill\" style=\"width:"+pct+"%\"></div></div><span class=\"count num\">"+v+"</span></div>";
+      }).join("");
+    }
+    $("#bar-conversion").innerHTML = bars(convMap, BRANCHES, 100);
+    $("#bar-dwell").innerHTML = bars(dwellMap, BRANCHES);
+  }
+
+  function renderTrafficList(){
+    var fb = $("#filter-t-branch").value, fs = $("#filter-t-shift").value;
+    var rows = state.traffic.filter(function(t){
+      return (!fb || t.branch===fb) && (!fs || t.shift===fs);
+    });
+    if(!rows.length){
+      $("#traffic-list").innerHTML = "<div class=\"empty\">لا توجد قياسات مطابقة بعد. أضِف أول قياس من النموذج أعلاه.</div>";
+      return;
+    }
+    $("#traffic-list").innerHTML = rows.map(function(t){
+      var conv = (Number(t.visitors)>0) ? Math.round(Number(t.buyers)/Number(t.visitors)*100) + "%" : "—";
+      var badge = RATING_BADGE[t.receptionRating] || "mid";
+      return "<div class=\"log-row\">"
+        + "<div class=\"stripe2\"></div>"
+        + "<div>"
+          + "<div class=\"meta\">"
+            + "<span><b>"+esc(t.branch)+"</b></span>"
+            + "<span>"+esc(t.date||"")+"</span>"
+            + "<span>· "+esc(t.shift||"")+"</span>"
+            + "<span>· "+esc(t.monitor||"")+"</span>"
+            + "<span class=\"badge "+badge+"\">"+esc(t.receptionRating||"")+"</span>"
+          + "</div>"
+          + "<div class=\"note\">زائرون: "+esc(t.visitors)+" · مشترون: "+esc(t.buyers)+" · تحويل: "+conv+" · متوسط البقاء: "+esc(t.dwellMinutes)+" د</div>"
+          + (t.receptionNote ? "<div class=\"action-note\">ملاحظة الاستقبال: "+esc(t.receptionNote)+"</div>" : "")
+        + "</div>"
+      + "</div>";
+    }).join("");
+  }
+
+  function renderLogList(){
+    var fb = $("#filter-branch").value, fc = $("#filter-category").value,
+        fs = $("#filter-severity").value, fst = $("#filter-status").value;
+    var rows = state.logs.filter(function(l){
+      return (!fb || l.branch===fb) && (!fc || l.category===fc) && (!fs || l.severity===fs) && (!fst || l.status===fst);
+    });
+    if(!rows.length){
+      $("#log-list").innerHTML = "<div class=\"empty\">لا توجد ملاحظات مطابقة بعد. أضِف أول ملاحظة من النموذج بجانب حالة الفروع.</div>";
+      return;
+    }
+    $("#log-list").innerHTML = rows.map(function(l){
+      var sevCls = l.severity==="حرجة" ? "crit" : (l.severity==="عالية" ? "high" : "");
+      var badge = SEV_BADGE[l.severity] || "mid";
+      var stCls = STATUS_CLASS[l.status] || "open";
+      return "<div class=\"log-row "+sevCls+"\">"
+        + "<div class=\"stripe2\"></div>"
+        + "<div>"
+          + "<div class=\"meta\">"
+            + "<span><b>"+esc(l.branch)+"</b></span>"
+            + "<span class=\"badge "+badge+"\">"+esc(l.severity)+"</span>"
+            + "<span>"+esc(l.category)+"</span>"
+            + "<span>· "+esc(l.shift||"")+"</span>"
+            + "<span>· "+esc(l.monitor||"")+"</span>"
+            + "<span>· "+relTime(l.createdAt)+"</span>"
+          + "</div>"
+          + "<div class=\"note\">"+esc(l.note)+"</div>"
+          + (l.action ? "<div class=\"action-note\">الإجراء: "+esc(l.action)+"</div>" : "")
+        + "</div>"
+        + "<button class=\"status-chip "+stCls+"\" data-id=\""+esc(l.id)+"\" data-status=\""+esc(l.status)+"\">"+esc(l.status)+"</button>"
+      + "</div>";
+    }).join("");
+  }
+
+  function renderAll(){
+    renderKPIs();
+    renderBranchGrid();
+    renderBars();
+    renderLogList();
+    renderTrafficKPIs();
+    renderTrafficGrid();
+    renderTrafficBars();
+    renderTrafficList();
+    renderComplianceGrid();
+    renderComplianceBar();
+    renderComplianceList();
+  }
+
+  // ---------- compliance checklist ----------
+  function renderComplianceItemsForm(){
+    $("#compliance-items").innerHTML = COMPLIANCE_ITEMS.map(function(it){
+      var d = it.detail;
+      var detailsHtml = d ? (
+        "<details class=\"crit-details\"><summary>عرض معايير التقييم</summary>"
+          + "<div class=\"crit-row\"><b>المعيار:</b> "+esc(d.std)+"</div>"
+          + "<div class=\"crit-row ok\"><b>يُعتبر التزامًا:</b> "+esc(d.ok)+"</div>"
+          + "<div class=\"crit-row bad\"><b>يُعتبر مخالفة:</b> "+esc(d.bad)+"</div>"
+        + "</details>"
+      ) : "";
+      return "<div class=\"check-item\"><span class=\"clabel\">"+esc(it.label)+"</span>"
+        + detailsHtml
+        + "<div class=\"tri-toggle\" data-key=\""+it.key+"\">"
+          + "<button type=\"button\" data-val=\"ملتزم\">ملتزم</button>"
+          + "<button type=\"button\" data-val=\"غير ملتزم\">غير ملتزم</button>"
+          + "<button type=\"button\" data-val=\"لا ينطبق\">لا ينطبق</button>"
+        + "</div></div>";
+    }).join("");
+  }
+
+  function complianceScoreClass(score){
+    if(score===null) return "";
+    return score < 70 ? "has-crit" : (score < 90 ? "has-high" : "");
+  }
+  function complianceBadgeClass(score){
+    if(score===null) return "mid";
+    return score >= 90 ? "low" : (score >= 70 ? "high" : "crit");
+  }
+
+  function renderComplianceGrid(){
+    var mc = thisMonthCompliance();
+    var rows = BRANCHES.map(function(b){
+      var bc = mc.filter(function(c){ return c.branch === b; });
+      var scores = bc.map(function(c){ return complianceScore(c.items); }).filter(function(s){ return s!==null; });
+      var avg = scores.length ? Math.round(scores.reduce(function(s,v){ return s+v; },0)/scores.length) : null;
+      var last = bc.reduce(function(acc,c){ return (!acc || c.createdAt > acc.createdAt) ? c : acc; }, null);
+      return { branch:b, avg:avg, count:bc.length, last:last };
+    });
+    rows.sort(function(a,b){
+      if(a.avg===null && b.avg===null) return 0;
+      if(a.avg===null) return 1;
+      if(b.avg===null) return -1;
+      return a.avg - b.avg;
+    });
+    $("#compliance-grid").innerHTML = rows.map(function(r){
+      var scoreText = r.avg===null ? "لا بيانات" : (r.avg + "%");
+      var updated = r.last ? ("آخر تحقق: " + relTime(r.last.createdAt)) : "لا توجد قوائم هذا الشهر";
+      return "<div class=\"branch-card "+complianceScoreClass(r.avg)+"\"><div class=\"stripe\"></div>"
+        + "<div class=\"name\">"+esc(r.branch)+"</div>"
+        + "<div class=\"row\"><span>نسبة الالتزام</span><span class=\"open-count num\">"+scoreText+"</span></div>"
+        + "<div class=\"row\"><span>عدد قوائم التحقق</span><span class=\"num\">"+r.count+"</span></div>"
+        + "<div class=\"updated\">"+esc(updated)+"</div></div>";
+    }).join("");
+  }
+
+  function renderComplianceBar(){
+    var mc = thisMonthCompliance();
+    var map = {};
+    BRANCHES.forEach(function(b){
+      var bc = mc.filter(function(c){ return c.branch === b; });
+      var scores = bc.map(function(c){ return complianceScore(c.items); }).filter(function(s){ return s!==null; });
+      map[b] = scores.length ? Math.round(scores.reduce(function(s,v){ return s+v; },0)/scores.length) : 0;
+    });
+    $("#bar-compliance").innerHTML = BRANCHES.map(function(k){
+      var v = map[k]||0;
+      return "<div class=\"bar-row\"><span>"+esc(k)+"</span><div class=\"track\"><div class=\"fill\" style=\"width:"+v+"%\"></div></div><span class=\"count num\">"+v+"%</span></div>";
+    }).join("");
+  }
+
+  function renderComplianceList(){
+    var fb = $("#filter-c-branch").value, fs = $("#filter-c-shift").value;
+    var rows = state.compliance.filter(function(c){
+      return (!fb || c.branch===fb) && (!fs || c.shift===fs);
+    });
+    if(!rows.length){
+      $("#compliance-list").innerHTML = "<div class=\"empty\">لا توجد قوائم تحقق مطابقة بعد. أضِف أول قائمة من النموذج أعلاه.</div>";
+      return;
+    }
+    $("#compliance-list").innerHTML = rows.map(function(c){
+      var score = complianceScore(c.items);
+      var badges = COMPLIANCE_ITEMS.filter(function(it){ return c.items && c.items[it.key] === "غير ملتزم"; })
+        .map(function(it){ return "<span class=\"badge crit\">"+esc(it.label)+"</span>"; }).join("");
+      return "<div class=\"log-row\">"
+        + "<div class=\"stripe2\"></div>"
+        + "<div>"
+          + "<div class=\"meta\">"
+            + "<span><b>"+esc(c.branch)+"</b></span>"
+            + "<span>"+esc(c.date||"")+"</span>"
+            + "<span>· "+esc(c.shift||"")+"</span>"
+            + "<span>· "+esc(c.monitor||"")+"</span>"
+            + "<span class=\"badge "+complianceBadgeClass(score)+"\">نسبة الالتزام: "+(score===null?"—":score+"%")+"</span>"
+          + "</div>"
+          + (badges ? "<div class=\"item-badges\">"+badges+"</div>" : "<div class=\"note\">كل البنود مطابقة للمعايير</div>")
+          + (c.note ? "<div class=\"action-note\">"+esc(c.note)+"</div>" : "")
+        + "</div>"
+      + "</div>";
+    }).join("");
+  }
+
+  // ---------- db banner ----------
+  function showBanner(msg){
+    var el = $("#db-banner");
+    el.textContent = msg;
+    el.style.display = "block";
+  }
+
+  // ---------- whoami ----------
+  function paintWhoami(){
+    document.querySelectorAll("#whoami button").forEach(function(btn){
+      btn.classList.toggle("active", btn.dataset.who === state.who);
+    });
+  }
+  $("#whoami").addEventListener("click", function(e){
+    var btn = e.target.closest("button[data-who]");
+    if(!btn) return;
+    state.who = btn.dataset.who;
+    try { localStorage.setItem("branchwatch_who", state.who); } catch(err){}
+    paintWhoami();
+  });
+
+  // ---------- filters ----------
+  ["#filter-branch","#filter-category","#filter-severity","#filter-status"].forEach(function(sel){
+    document.querySelector(sel).addEventListener("change", renderLogList);
+  });
+  ["#filter-t-branch","#filter-t-shift"].forEach(function(sel){
+    document.querySelector(sel).addEventListener("change", renderTrafficList);
+  });
+  ["#filter-c-branch","#filter-c-shift"].forEach(function(sel){
+    document.querySelector(sel).addEventListener("change", renderComplianceList);
+  });
+
+  // ---------- compliance tri-toggle ----------
+  $("#compliance-items").addEventListener("click", function(e){
+    var btn = e.target.closest("button[data-val]");
+    if(!btn) return;
+    var group = btn.closest(".tri-toggle");
+    var key = group.dataset.key;
+    state.checkValues[key] = btn.dataset.val;
+    Array.prototype.forEach.call(group.querySelectorAll("button"), function(b){
+      b.classList.remove("sel-good","sel-bad","sel-na");
+    });
+    btn.classList.add(btn.dataset.val === "ملتزم" ? "sel-good" : (btn.dataset.val === "غير ملتزم" ? "sel-bad" : "sel-na"));
+  });
+
+  // ---------- status advance ----------
+  $("#log-list").addEventListener("click", function(e){
+    var btn = e.target.closest("button[data-id]");
+    if(!btn || !state.db) return;
+    var order = STATUSES;
+    var cur = btn.dataset.status;
+    var next = order[(order.indexOf(cur)+1) % order.length];
+    var patch = { status: next };
+    if(next === "مغلقة") patch.closedAt = new Date().toISOString();
+    btn.disabled = true;
+    state.db.doc("logs/"+btn.dataset.id).update(patch).catch(function(){}).then(function(){ btn.disabled = false; });
+  });
+
+  // ---------- form submit ----------
+  $("#log-form").addEventListener("submit", function(e){
+    e.preventDefault();
+    if(!state.db){ showBanner("تعذّر الحفظ: قاعدة البيانات غير متاحة في هذا العرض. جرّب إعادة تحميل الصفحة."); return; }
+    var data = {
+      branch: $("#f-branch").value,
+      shift: $("#f-shift").value,
+      category: $("#f-category").value,
+      severity: $("#f-severity").value,
+      note: $("#f-note").value.trim(),
+      action: $("#f-action").value.trim(),
+      monitor: state.who || "غير محدد",
+      status: "مفتوحة",
+      createdAt: new Date().toISOString(),
+      closedAt: null
+    };
+    if(!data.note){ return; }
+    var btn = $("#submit-btn");
+    btn.disabled = true; btn.textContent = "جارٍ الحفظ…";
+    state.db.collection("logs").add(data).then(function(){
+      $("#log-form").reset();
+      $("#f-shift").value = computeShift(new Date(), state.config).currentShiftLabel;
+    }).catch(function(){
+      showBanner("حدث خطأ أثناء الحفظ. حاول مرة أخرى.");
+    }).then(function(){
+      btn.disabled = false; btn.textContent = "إضافة الملاحظة";
+    });
+  });
+
+  // ---------- traffic form submit ----------
+  $("#t-buyers").addEventListener("input", function(){
+    var visitors = Number($("#t-visitors").value)||0, buyers = Number($("#t-buyers").value)||0;
+    $("#traffic-warn").style.display = (buyers > visitors) ? "block" : "none";
+  });
+  $("#t-visitors").addEventListener("input", function(){
+    var visitors = Number($("#t-visitors").value)||0, buyers = Number($("#t-buyers").value)||0;
+    $("#traffic-warn").style.display = (buyers > visitors) ? "block" : "none";
+  });
+  $("#traffic-form").addEventListener("submit", function(e){
+    e.preventDefault();
+    if(!state.db){ showBanner("تعذّر الحفظ: قاعدة البيانات غير متاحة في هذا العرض. جرّب إعادة تحميل الصفحة."); return; }
+    var visitors = Number($("#t-visitors").value)||0, buyers = Number($("#t-buyers").value)||0;
+    if(buyers > visitors){ $("#traffic-warn").style.display = "block"; return; }
+    var date = $("#t-date").value || todayISODate();
+    var shift = $("#t-shift").value;
+    var data = {
+      branch: $("#t-branch").value,
+      date: date,
+      shift: shift,
+      monitor: state.who || "غير محدد",
+      visitors: visitors,
+      buyers: buyers,
+      dwellMinutes: Number($("#t-dwell").value)||0,
+      receptionRating: $("#t-rating").value,
+      receptionNote: $("#t-note").value.trim(),
+      createdAt: new Date().toISOString()
+    };
+    var docId = slugFor(data.branch) + "__" + date + "__" + shiftSlug(shift);
+    var btn = $("#traffic-submit-btn");
+    btn.disabled = true; btn.textContent = "جارٍ الحفظ…";
+    state.db.collection("traffic").doc(docId).set(data).then(function(){
+      $("#traffic-form").reset();
+      $("#t-date").value = todayISODate();
+      $("#t-shift").value = computeShift(new Date(), state.config).currentShiftLabel;
+      $("#traffic-warn").style.display = "none";
+    }).catch(function(){
+      showBanner("حدث خطأ أثناء حفظ بيانات الحركة. حاول مرة أخرى.");
+    }).then(function(){
+      btn.disabled = false; btn.textContent = "حفظ بيانات الحركة";
+    });
+  });
+
+  // ---------- compliance form submit ----------
+  $("#compliance-form").addEventListener("submit", function(e){
+    e.preventDefault();
+    if(!state.db){ showBanner("تعذّر الحفظ: قاعدة البيانات غير متاحة في هذا العرض. جرّب إعادة تحميل الصفحة."); return; }
+    var missing = COMPLIANCE_ITEMS.some(function(it){ return !state.checkValues[it.key]; });
+    if(missing){ showBanner("يرجى تحديد حالة كل بند في قائمة التحقق (ملتزم / غير ملتزم / لا ينطبق) قبل الحفظ."); return; }
+    var branch = $("#c-branch").value;
+    var date = $("#c-date").value || todayISODate();
+    var shift = $("#c-shift").value;
+    var data = {
+      branch: branch, date: date, shift: shift, monitor: state.who || "غير محدد",
+      items: Object.assign({}, state.checkValues),
+      note: $("#c-note").value.trim(),
+      createdAt: new Date().toISOString()
+    };
+    var docId = slugFor(branch) + "__" + date + "__" + shiftSlug(shift);
+    var btn = $("#compliance-submit-btn");
+    btn.disabled = true; btn.textContent = "جارٍ الحفظ…";
+    state.db.collection("compliance").doc(docId).set(data).then(function(){
+      $("#compliance-form").reset();
+      $("#c-date").value = todayISODate();
+      $("#c-shift").value = computeShift(new Date(), state.config).currentShiftLabel;
+      state.checkValues = {};
+      document.querySelectorAll("#compliance-items .tri-toggle button").forEach(function(b){
+        b.classList.remove("sel-good","sel-bad","sel-na");
+      });
+    }).catch(function(){
+      showBanner("حدث خطأ أثناء حفظ قائمة التحقق. حاول مرة أخرى.");
+    }).then(function(){
+      btn.disabled = false; btn.textContent = "حفظ قائمة التحقق";
+    });
+  });
+
+  // ---------- settings modal ----------
+  function openSettings(){
+    $("#cfg-start").value = state.config.startDate;
+    $("#cfg-m1").value = state.config.monitor1;
+    $("#cfg-m2").value = state.config.monitor2;
+    $("#settings-overlay").style.display = "flex";
+  }
+  $("#settings-btn").addEventListener("click", openSettings);
+  $("#cfg-cancel").addEventListener("click", function(){ $("#settings-overlay").style.display = "none"; });
+  $("#cfg-save").addEventListener("click", function(){
+    var cfg = {
+      startDate: $("#cfg-start").value || state.config.startDate,
+      monitor1: $("#cfg-m1").value.trim() || "مراقب 1",
+      monitor2: $("#cfg-m2").value.trim() || "مراقب 2"
+    };
+    state.config = cfg;
+    renderShiftBar();
+    $("#settings-overlay").style.display = "none";
+    if(state.db){ state.db.doc("config/settings").set(cfg).catch(function(){}); }
+  });
+
+  // ---------- init static selects ----------
+  fillSelect($("#f-branch"), BRANCHES, null);
+  fillSelect($("#f-category"), CATEGORIES, null);
+  fillSelect($("#f-severity"), SEVERITIES, null);
+  fillSelect($("#filter-branch"), BRANCHES, "كل الفروع");
+  fillSelect($("#filter-category"), CATEGORIES, "كل التصنيفات");
+  fillSelect($("#filter-severity"), SEVERITIES, "كل درجات الأهمية");
+  fillSelect($("#filter-status"), STATUSES, "كل الحالات");
+  fillSelect($("#t-branch"), BRANCHES, null);
+  fillSelect($("#t-rating"), RATINGS, null);
+  fillSelect($("#filter-t-branch"), BRANCHES, "كل الفروع");
+  fillSelect($("#filter-t-shift"), SHIFTS, "كل الورديات");
+  $("#t-date").value = todayISODate();
+  fillSelect($("#c-branch"), BRANCHES, null);
+  fillSelect($("#filter-c-branch"), BRANCHES, "كل الفروع");
+  fillSelect($("#filter-c-shift"), SHIFTS, "كل الورديات");
+  $("#c-date").value = todayISODate();
+  renderComplianceItemsForm();
+  paintWhoami();
+  renderShiftBar();
+  renderAll();
+  setInterval(renderShiftBar, 60000);
+  setInterval(renderAll, 60000);
+
+  // ---------- local (no-login) data store, backed by localStorage ----------
+  // This build has no live shared "db" capability (that would force a
+  // Claude-account/organization login on every viewer). Instead every
+  // browser keeps its own copy under LS_KEY, and the export/import
+  // buttons let the two monitors exchange snapshots manually.
+  var LS_KEY = "bh_branch_monitor_v1";
+  var lsListeners = [];
+
+  function lsRead(){
+    try {
+      var raw = localStorage.getItem(LS_KEY);
+      var parsed = raw ? JSON.parse(raw) : null;
+      return Object.assign({ logs:{}, traffic:{}, compliance:{}, config:{} }, parsed || {});
+    } catch(e){ return { logs:{}, traffic:{}, compliance:{}, config:{} }; }
+  }
+  function lsWrite(store){
+    try { localStorage.setItem(LS_KEY, JSON.stringify(store)); } catch(e){}
+    lsListeners.forEach(function(fn){ try{ fn(); }catch(e){} });
+  }
+  window.addEventListener("storage", function(e){
+    if(e.key === LS_KEY) lsListeners.forEach(function(fn){ try{ fn(); }catch(e){} });
+  });
+
+  function splitDocPath(path){
+    var parts = String(path).split("/").filter(Boolean);
+    var id = parts.pop();
+    return { coll: parts.join("/"), id: id };
+  }
+  function freshId(){ return "id_" + Date.now() + "_" + Math.random().toString(36).slice(2,9); }
+
+  function makeDocRef(collName, id){
+    return {
+      id: id,
+      path: collName + "/" + id,
+      get: function(){
+        var store = lsRead();
+        var body = (store[collName]||{})[id];
+        return Promise.resolve({ id:id, exists: !!body, data: function(){ return body; }, metadata:{fromCache:false,hasPendingWrites:false} });
+      },
+      set: function(data){
+        var store = lsRead();
+        if(!store[collName]) store[collName] = {};
+        store[collName][id] = Object.assign({}, data);
+        lsWrite(store);
+        return Promise.resolve();
+      },
+      update: function(data){
+        var store = lsRead();
+        if(!store[collName]) store[collName] = {};
+        var existing = store[collName][id];
+        if(!existing) return Promise.reject({ code:"invalid_argument", message:"document does not exist" });
+        store[collName][id] = Object.assign({}, existing, data);
+        lsWrite(store);
+        return Promise.resolve();
+      },
+      delete: function(){
+        var store = lsRead();
+        if(store[collName]) delete store[collName][id];
+        lsWrite(store);
+        return Promise.resolve();
+      },
+      onSnapshot: function(next, errCb){
+        function fire(){
+          var store = lsRead();
+          var body = (store[collName]||{})[id];
+          next({ id:id, exists: !!body, data: function(){ return body; }, metadata:{fromCache:false,hasPendingWrites:false} });
+        }
+        fire();
+        lsListeners.push(fire);
+        return function(){ var i = lsListeners.indexOf(fire); if(i>-1) lsListeners.splice(i,1); };
+      }
+    };
+  }
+
+  function makeQuery(collName, opts){
+    opts = opts || {};
+    function buildSnapshot(){
+      var store = lsRead();
+      var bucket = store[collName] || {};
+      var docs = Object.keys(bucket).map(function(k){
+        return { id:k, exists:true, data:function(){ return bucket[k]; }, metadata:{fromCache:false,hasPendingWrites:false} };
+      });
+      if(opts.orderField){
+        docs.sort(function(a,b){
+          var av = a.data()[opts.orderField], bv = b.data()[opts.orderField];
+          if(av === bv) return 0;
+          if(av === undefined) return 1;
+          if(bv === undefined) return -1;
+          return (av < bv ? -1 : 1) * (opts.orderDir === "desc" ? -1 : 1);
+        });
+      }
+      if(opts.limitN) docs = docs.slice(0, opts.limitN);
+      return { docs: docs, size: docs.length, empty: docs.length===0, docChanges:function(){ return []; }, metadata:{fromCache:false,hasPendingWrites:false} };
+    }
+    return {
+      where: function(){ return makeQuery(collName, opts); },
+      orderBy: function(field, dir){ return makeQuery(collName, Object.assign({}, opts, { orderField:field, orderDir: dir||"asc" })); },
+      limit: function(n){ return makeQuery(collName, Object.assign({}, opts, { limitN:n })); },
+      get: function(){ return Promise.resolve(buildSnapshot()); },
+      onSnapshot: function(next, errCb){
+        function fire(){ next(buildSnapshot()); }
+        fire();
+        lsListeners.push(fire);
+        return function(){ var i = lsListeners.indexOf(fire); if(i>-1) lsListeners.splice(i,1); };
+      }
+    };
+  }
+
+  function makeCollectionRef(collName){
+    var q = makeQuery(collName);
+    q.path = collName;
+    q.doc = function(id){ return makeDocRef(collName, id || freshId()); };
+    q.add = function(data){ var ref = q.doc(); return ref.set(data).then(function(){ return ref; }); };
+    return q;
+  }
+
+  var localDb = {
+    doc: function(path){ var sp = splitDocPath(path); return makeDocRef(sp.coll, sp.id); },
+    collection: function(path){ return makeCollectionRef(path); }
+  };
+
+  // ---------- manual export / import (since there is no live sync) ----------
+  $("#export-btn").addEventListener("click", async function(){
+    var store = lsRead();
+    var json = JSON.stringify(store, null, 2);
+    var stamp = new Date().toISOString().slice(0,10);
+    var filename = "branch-monitor-export-" + stamp + ".json";
+    try {
+      if(typeof claude !== "undefined" && claude && claude.use){
+        var downloads = await claude.use("downloads");
+        if(downloads){
+          await downloads.save({ filename: filename, data: json });
+          return;
+        }
+      }
+    } catch(e){}
+    // fallback: ordinary browser download — used when this page runs
+    // outside the Claude artifact viewer (self-hosted / opened as a file)
+    try {
+      var blob = new Blob([json], { type: "application/json" });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      a.href = url; a.download = filename;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 2000);
+    } catch(e2){
+      showBanner("تعذّر تنزيل الملف في هذا المتصفح.");
+    }
+  });
+  $("#import-btn").addEventListener("click", function(){ $("#import-file").click(); });
+  $("#import-file").addEventListener("change", function(e){
+    var file = e.target.files && e.target.files[0];
+    if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(){
+      try {
+        var incoming = JSON.parse(String(reader.result));
+        var store = lsRead();
+        ["logs","traffic","compliance"].forEach(function(coll){
+          if(incoming[coll]){
+            store[coll] = Object.assign({}, store[coll]||{}, incoming[coll]);
+          }
+        });
+        if(incoming.config){ store.config = Object.assign({}, store.config||{}, incoming.config); }
+        lsWrite(store);
+        showBanner("تم استيراد البيانات ودمجها مع النسخة المحلية بنجاح.");
+      } catch(err){
+        showBanner("تعذّر قراءة الملف — تأكد أنه ملف تصدير صادر من نفس اللوحة.");
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = "";
+  });
+
+  // ---------- connect to (local) data store ----------
+  async function connect(){
+    var dbNs = localDb;
+    state.db = dbNs;
+    dbNs.doc("config/settings").onSnapshot(function(snap){
+      if(snap.exists){
+        state.config = Object.assign({}, state.config, snap.data());
+      } else {
+        dbNs.doc("config/settings").set(state.config).catch(function(){});
+      }
+      renderShiftBar();
+      $("#f-shift").value = computeShift(new Date(), state.config).currentShiftLabel;
+      $("#t-shift").value = computeShift(new Date(), state.config).currentShiftLabel;
+      $("#c-shift").value = computeShift(new Date(), state.config).currentShiftLabel;
+    }, function(){});
+    dbNs.collection("logs").orderBy("createdAt","desc").limit(300).onSnapshot(function(snap){
+      state.logs = snap.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); });
+      renderAll();
+    }, function(err){
+      showBanner("تعذّر تحميل سجل المتابعة (" + (err && err.code || "unavailable") + ").");
+    });
+    dbNs.collection("traffic").orderBy("createdAt","desc").limit(400).onSnapshot(function(snap){
+      state.traffic = snap.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); });
+      renderAll();
+    }, function(err){
+      showBanner("تعذّر تحميل سجل حركة العملاء (" + (err && err.code || "unavailable") + ").");
+    });
+    dbNs.collection("compliance").orderBy("createdAt","desc").limit(400).onSnapshot(function(snap){
+      state.compliance = snap.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); });
+      renderAll();
+    }, function(err){
+      showBanner("تعذّر تحميل قوائم التحقق (" + (err && err.code || "unavailable") + ").");
+    });
+  }
+  connect();
+
+})();
+</script>
